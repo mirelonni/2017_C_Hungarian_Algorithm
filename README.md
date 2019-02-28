@@ -1,4 +1,4 @@
-#Hungarian Algorithm in C
+# Hungarian Algorithm in C
 
 This code returns the sum of the lowest cost way to assign jobs.
 The input should be placed in argv[1] as follows:
