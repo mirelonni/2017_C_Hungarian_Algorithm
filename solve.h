@@ -90,8 +90,8 @@ void make_zeros_col(TGraphM *g)
 
 int fix(TGraphM *g)
 {
-    // for care gaseste minimul de pe elementele nemarcate
-    int min = 1000, i, j;
+    // for loop that finds the min of unmarked elements
+    int min = 99999999, i, j;
 
     for (i = 0; i < g->nn; i++) {
         for (j = 0; j < g->nn; j++) {
@@ -103,8 +103,8 @@ int fix(TGraphM *g)
         }
     }
 
-    // for care scade minimul de pe elementele nemarcate
-    // si il aduna la cele marcate de 2 ori
+    // for loop that decreases unmarked ele with min
+    // and adds min to the marked ones
     for (i = 0; i < g->nn; i++) {
         for (j = 0; j < g->nn; j++) {
             if (g->lin[i] == -1 && g->col[j] == -1) {
@@ -117,8 +117,6 @@ int fix(TGraphM *g)
         }
     }
 
-    // functia returneaza minimul deoarece avem nevoie de el in implementarea
-    // algoritmului unguresc
     return min;
 }
 
@@ -127,28 +125,28 @@ void chose(TGraphM *g)
     int cond = 0, min = 1000, k, nr_0_col, nr_0_lin, i, j;
 
     while (cond != g->nn) {
-        // while pana cand marcam un nr necesar de elemente
-        // (egale cu dimensiunea matricii)
+        // while loop until there are marked enough elements
+        // (equal to the size of the matrix)
         if (min != 0) {
-            // daca minimul intors de fix nu este 0 adica daca facem modificari
-            // in matrice
-            cond = 0;      // conditia de while este readusa la 0
+            // if fix doesn't return 0 it means that we have modified the matrix
+
+            cond = 0;      // the while condition is brougt back to 0
 
             for (i = 0; i < g->nn; i++) {
-                g->lin[i] = -1; // vectorii de elemente marcate sunt adusi
-                g->col[i] = -1; // la conditia de fals
+                g->lin[i] = -1; // the elements vectors are brought back
+                g->col[i] = -1; // to the false condition
             }
         }
 
         for (i = 0; i < g->nn; i++) {
             k = 0;
-            nr_0_col = 0; // contorul de zerouri este initializat la 0
+            nr_0_col = 0; // the zeros counter is initialized to 0
 
             for (j = 0; j < g->nn; j++) {
                 if (g->ml[i][j] == 0) {
                     if (g->col[j] == -1 && g->lin[i] == -1) {
-                        // daca elementul este 0 si nu au mai fost alte elemente
-                        // marcate pe linia sau coloana respectiva
+                        // if the element is 0 ant there are none other
+                        // marked elements on that row or column
                         nr_0_col++;
                         k = j;
                     }
@@ -157,8 +155,8 @@ void chose(TGraphM *g)
             }
 
             if (nr_0_col == 1) {
-                // daca este un singur 0 se atribuie indicele coloanei
-                // in pozitia corespunzatoare a vectorului col (k)
+                // if there is a single 0 the index of the column is saved in
+                // the corespondent columns vector position(k)
                 g->col[k] = i;
                 cond++;
             }
@@ -184,18 +182,20 @@ void chose(TGraphM *g)
         }
 
         if (cond != g->nn) {
-            // daca dupa parcurgerea pe linii si pe coloane sunt mai putine
-            // taieturi decat dimensiunea matricii se apeleaza fix pentru a
-            // se reusi pasul de marcare a zerourilor din matrice cu un lumar
-            // egal de taieturi pentru finalizarea algoritmului unguresc
+            // if there are less cuts than the matrix size fix is called to
+            // succed in the cutting step of the hungarian algorithm,
+            // so the cuts will eventualy be equal to the matrix size
             min = fix(g);
         }
     }
 }
 
+/*
+  returns the sum of the lowest costs
+*/
 int get_sum(TGraphM *g)
 {
-    // se calculeaza suma de final ce corespunde indicilor din lin si col
+
     int sum = 0;
 
     for (int i = 0; i < g->nn; i++) {
@@ -211,9 +211,12 @@ int get_sum(TGraphM *g)
     return sum;
 }
 
+/*
+  Function to free the allocated memory
+*/
 void free_the_people(TGraphM *g)
 {
-    // functie de eliberare a memoriei ocupate de structura
+
     for (int i = 0; i < g->nn; i++) {
         free(g->ml[i]);
         free(g->mc[i]);
@@ -236,7 +239,6 @@ int solve(char *testInputFileName) {
     alloc_matrix(&g, n);
     int i, j, cost;
 
-    // citirea matriciei din fisier si introducerea ei in structura
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++) {
             fscanf(file, "%d", &cost);
@@ -245,14 +247,12 @@ int solve(char *testInputFileName) {
     }
 
     fclose(file);
-    // primul pas al algoritmului unguresc
+
     make_zeros_row(&g);
     make_zeros_col(&g);
-    // ceilalti pasi sunt inclusi in functia chose
     chose(&g);
-    // ultimul pas din algoritmul unguresc
     int sum = get_sum(&g);
-    // eliberarea memoriei alocate
+
     free_the_people(&g);
     return sum;
 }
