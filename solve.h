@@ -3,21 +3,25 @@
 
 #include <stdlib.h>
 
+/*
+  struct for saving the bipartite graph
+*/
 typedef struct {
-    int nn; // numar noduri
-    int **mc; // matrice de costuri
-    int **ml; // matrice de lucru
-    int *lin; // vector pentru identificarea zerourilor pe linii
-    int *col; // vector pentru identificarea zerourilor pe coloane
+    int nn; // number of nodes
+    int **mc; // cost matrix
+    int **ml; // work matrix
+    int *lin; // vector for identifiing zeros on rows
+    int *col; // vector for identifiing zeros on cols
 } TGraphM;
 
+
+/*
+  graph alloc function
+*/
 void alloc_matrix(TGraphM * g, int n)
 {
     g->nn = n;
-    // ma alocat spatiu corespunzator pentru cate elemente folosesc
-    // o matrice de costuri
-    // o matrice pe care lucrez (aplic algoritmul unguresc)
-    // 2 vectori pentru alegerea elementelor folosite la suma de final
+
     g->mc = (int **)malloc(n * sizeof(int*));
     g->ml = (int **)malloc(n * sizeof(int*));
     g->lin = (int*)malloc(n * sizeof(int));
@@ -29,16 +33,21 @@ void alloc_matrix(TGraphM * g, int n)
     }
 }
 
+/*
+  graph insert function
+*/
 void insert_edge_matrix(TGraphM *g, int v1, int v2, int cost)
 {
-    // am inserat si in ambele matrici aceleasi valori
+
     g->mc[v1][v2] = cost;
     g->ml[v1][v2] = cost;
 }
 
+/*
+  function that decreases each row with the lowest element
+*/
 void make_zeros_row(TGraphM *g)
 {
-    // functia care scade minimul de pe linii
     int i, j, min_r;
 
     for (i = 0; i < g->nn; i++) {
@@ -56,9 +65,12 @@ void make_zeros_row(TGraphM *g)
     }
 }
 
+/*
+  function that decreases each col with the lowest element
+*/
 void make_zeros_col(TGraphM *g)
 {
-    // functia care scade minimul de pe coloane
+
     int i, j, min_c;
 
     for (i = 0; i < g->nn; i++) {
